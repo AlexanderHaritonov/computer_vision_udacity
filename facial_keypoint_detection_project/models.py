@@ -1,4 +1,4 @@
-## define the convolutional neural network architecture
+## TODO: define the convolutional neural network architecture
 
 import torch
 import torch.nn as nn
@@ -33,36 +33,28 @@ class Net(nn.Module):
         self.conv2 = nn.Conv2d(32, 64, 5)
         # output: (64, 53, 53)
         self.pool2 = nn.MaxPool2d(kernel_size=2, stride=2)
-
+        
         # input: (64, 53, 53), (W-F)/S+1 = (53-3)/1 + 1 = 51, output: (128, 51, 51)
         self.conv3 = nn.Conv2d(64, 128, 3)
         # output: (128, 25, 25)
         self.pool3 = nn.MaxPool2d(kernel_size=2, stride=2)
-
-        # input: (128, 25, 25), (W-F)/S+1 = (25-3)/1 + 1 = 23, output: (256, 23, 23)
-        self.conv4 = nn.Conv2d(128, 256, 3)
-        # output: (256, 12, 12)
+        
+        # output: (128, 12, 12)
         self.pool4 = nn.MaxPool2d(kernel_size=2, stride=2)
 
-        # input: (256, 12, 12), (W-F)/S+1 = (12-3)/1 + 1 = 10, output: (512, 10, 10)
-        self.conv5 = nn.Conv2d(256, 512, 3)
-        # output: (512, 5, 5)
-        self.pool5 = nn.MaxPool2d(kernel_size=2, stride=2)
-
-        self.fc1 = nn.Linear(512*5*5, 360)
+        self.fc1 = nn.Linear(128*12*12, 360)
         self.fc1_drop = nn.Dropout(p=0.2)
 
-        self.fc2 = nn.Linear(288, 136)
+        self.fc2 = nn.Linear(360, 136)
 
         
     def forward(self, x):
         ## Define the feedforward behavior of this model
         ## x is the input image and, as an example, here you may choose to include a pool/conv step:
         x = self.pool1(F.relu(self.conv1(x)))
-        x = self.pool2(F.relu(self.conv2(x)))
+        x = self.pool2(F.relu(self.conv2(x)))        
         x = self.pool3(F.relu(self.conv3(x)))
-        x = self.pool4(F.relu(self.conv4(x)))
-        x = self.pool5(F.relu(self.conv5(x)))
+        x = self.pool4(x)
 
         x = x.view(x.size(0), -1)
         x = F.relu(self.fc1(x))
