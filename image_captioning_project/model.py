@@ -24,10 +24,17 @@ class DecoderRNN(nn.Module):
     def __init__(self, embed_size, hidden_size, vocab_size, num_layers=1):
         super(DecoderRNN, self).__init__()
         # TODO: Complete this function
+        self.embed = nn.Embedding(vocab_size, embed_size)
+        self.lstm = nn.LSTM(input_size=embed_size, hidden_size=hidden_size, num_layers=num_layers, batch_first=True)
+        #self.lstm = nn.LSTM(input_size=embed_size, hidden_size=hidden_size, num_layers=num_layers)
+        self.linear = nn.Linear(hidden_size, vocab_size)
 
-    def forward(self, features, captions):
-        embeddings = self.embed(captions[:, :-1])  # Exclude the <end> token
+    def forward(self, features, captions):        
         # TODO: Complete this function
+        embeddings = self.embed(captions[:, :-1])  # Exclude the <end> token
+        embeddings = torch.cat((features.unsqueeze(1), embeddings), dim=1)
+        ltsm_outputs, _ = self.lstm(embeddings)  #[batch, seq_len, hidden_size]
+        outputs = self.linear(ltsm_outputs)      #[batch, seq_len, vocab_size]
         return outputs
 
     def sample(self, inputs, states=None, max_len=20):
